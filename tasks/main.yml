@@ -59,7 +59,7 @@
   async: 10
   poll: 0
 
-- name: Attendre que le port soit disponible
-  ansible.builtin.wait_for:
-    port: "{{ serve_port }}"
-    timeout: 30
+#- name: Attendre que le port soit disponible
+#  ansible.builtin.wait_for:
+#    port: "{{ serve_port }}"
+#    timeout: 30
