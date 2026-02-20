@@ -22,24 +22,6 @@
     executable: /bin/bash
   when: os_family == "Debian"
 
-- name: Installer paquets sur RedHat/Rocky Linux
-  ansible.builtin.yum:
-    name:
-      - git
-      - curl
-      - gcc-c++
-      - make
-    state: present
-  when: os_family == "RedHat"
-
-- name: Installer Node.js sur RedHat/Rocky Linux
-  ansible.builtin.shell: |
-    curl -fsSL https://rpm.nodesource.com/setup_{{ node_version }} | bash -
-    yum install -y nodejs
-  args:
-    executable: /bin/bash
-  when: os_family == "RedHat"
-
 # Préparer le dossier d'installation
 - name: Créer le dossier de l'application
   ansible.builtin.file:
@@ -70,10 +52,14 @@
     name: serve
     global: yes
 
-- name: Lancer l'application (en arrière-plan)
-  ansible.builtin.shell: |
-        $(which serve) -s dist -l {{ serve_port }}> /tmp/serve.log 2>&1
-  args:
+- name: Lancer l'application en tâche de fond
+  ansible.builtin.shell:
+    cmd: "nohup serve -s dist --listen {{ serve_port }} > /var/log/quiz-ansible.log 2>&1 &"
     chdir: "{{ app_install_dir }}"
-  async: 1000
+  async: 10
   poll: 0
+
+- name: Attendre que le port soit disponible
+  ansible.builtin.wait_for:
+    port: "{{ serve_port }}"
+    timeout: 30
