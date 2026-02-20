@@ -2,4 +2,4 @@
 - hosts: ubuntu
   become: yes
   roles:
-    - exo32
+    - ansible-role-exo32
