@@ -1,0 +1,79 @@
+---
+- name: Détecter la famille de l'OS
+  ansible.builtin.set_fact:
+    os_family: "{{ ansible_facts['os_family'] }}"
+
+# Installation des paquets requis
+- name: Installer paquets sur Debian/Ubuntu
+  ansible.builtin.apt:
+    name:
+      - git
+      - curl
+      - build-essential
+    state: present
+    update_cache: yes
+  when: os_family == "Debian"
+
+- name: Installer Node.js sur Debian/Ubuntu
+  ansible.builtin.shell: |
+    curl -fsSL https://deb.nodesource.com/setup_{{ node_version }} | bash -
+    apt-get install -y nodejs
+  args:
+    executable: /bin/bash
+  when: os_family == "Debian"
+
+- name: Installer paquets sur RedHat/Rocky Linux
+  ansible.builtin.yum:
+    name:
+      - git
+      - curl
+      - gcc-c++
+      - make
+    state: present
+  when: os_family == "RedHat"
+
+- name: Installer Node.js sur RedHat/Rocky Linux
+  ansible.builtin.shell: |
+    curl -fsSL https://rpm.nodesource.com/setup_{{ node_version }} | bash -
+    yum install -y nodejs
+  args:
+    executable: /bin/bash
+  when: os_family == "RedHat"
+
+# Préparer le dossier d'installation
+- name: Créer le dossier de l'application
+  ansible.builtin.file:
+    path: "{{ app_install_dir }}"
+    state: directory
+    mode: "0755"
+
+# Déploiement de l'application
+- name: Cloner le dépôt quiz-ansible
+  ansible.builtin.git:
+    repo: "{{ quiz_git_repo }}"
+    dest: "{{ app_install_dir }}"
+    version: "main"
+    force: yes
+
+- name: Installer les dépendances Node.js
+  ansible.builtin.command: npm install
+  args:
+    chdir: "{{ app_install_dir }}"
+
+- name: Compiler l'application
+  ansible.builtin.command: npm run build
+  args:
+    chdir: "{{ app_install_dir }}"
+
+- name: Installer serve globalement
+  ansible.builtin.npm:
+    name: serve
+    global: yes
+
+- name: Lancer l'application (en arrière-plan)
+  ansible.builtin.shell: |
+        $(which serve) -s dist -l {{ serve_port }}> /tmp/serve.log 2>&1
+  args:
+    chdir: "{{ app_install_dir }}"
+  async: 1000
+  poll: 0

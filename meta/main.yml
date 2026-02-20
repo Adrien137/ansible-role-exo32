@@ -1,0 +1,29 @@
+galaxy_info:
+  author: "Adrien MODEV1"
+  description: "Role to deploy quiz-ansible Node.js app on Debian/Ubuntu and RedHat/Rocky Linux"
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: Debian
+      versions: [buster, bullseye]
+    - name: Ubuntu
+      versions: [bionic, focal, jammy]
+    - name: RedHat
+      versions: [8, 9]
+    - name: Rocky
+      versions: [8, 9]
+
+  # If this a Container Enabled role, provide the minimum Ansible Container version.
+  # min_ansible_container_version:
+
+  galaxy_tags: []
+    # List tags for your role here, one per line. A tag is a keyword that describes
+    # and categorizes the role. Users find roles by searching for tags. Be sure to
+    # remove the '[]' above, if you add tags to this list.
+    #
+    # NOTE: A tag is limited to a single word comprised of alphanumeric characters.
+    #       Maximum 20 tags per role.
+
+dependencies: []
+  # List your role dependencies here, one per line. Be sure to remove the '[]' above,
+  # if you add dependencies to this list.
